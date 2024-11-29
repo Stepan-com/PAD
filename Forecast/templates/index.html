@@ -1,0 +1,110 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Погода</title>
+    <link rel="icon" href="{% static 'img/favicon/favicon.png' %}" type="image/x-icon">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
+
+</head>
+<body>
+
+<header>
+
+    <h1>Прогноз погоды</h1>
+    <div class="form-cnt">
+        <form id="city-form" method="post">
+            {% csrf_token %}
+            <label for="id_city" class="hidden">City:</label>
+            <input type="text" name="city" maxlength="100" required="" id="id_city" class="input-form"
+                   placeholder="Введите город: ">
+            <button type="submit" class="btn">Узнать</button>
+        </form>
+    </div>
+
+</header>
+
+<div class="forecast-cnt">
+    {% if weather_data.current_weather_data %}
+        <div class="current-forecast">
+            <h1>Погода на
+                сегодня {{ weather_data.current_weather_data.current_date }}, {{ form.cleaned_data.city }}</h1>
+            <div class="temp">
+                <div class="weather-code">{{ weather_data.current_weather_data.weather_code }},</div>
+                <div class="temperature">{{ weather_data.current_weather_data.temperature|floatformat:0 }} °C</div>
+                <div class="apparent">/ Ощущается
+                    как {{ weather_data.current_weather_data.apparent_temperature|floatformat:0 }} °C
+                </div>
+            </div>
+            <div class="additional-info">
+                <div class="precipitation">
+                    Осадки: {{ weather_data.current_weather_data.precipitation|floatformat:1 }} мм
+                </div>
+                <div class="wind">
+                    <div class="speed">
+                        Ветер: {{ weather_data.current_weather_data.wind_speed|floatformat:1 }} м/с,
+                    </div>
+                    <div class="dir">
+                        направление: {{ weather_data.current_weather_data.wind_direction }}
+                    </div>
+                </div>
+                <div class="relative-humidity">
+                    Относительная влажность {{ weather_data.current_weather_data.relative_humidity }} %
+                </div>
+                <div class="pressure">
+                    Атмосферное явление {{ weather_data.current_weather_data.pressure|floatformat:0 }} мм рт. ст.
+                </div>
+            </div>
+
+        </div>
+    {% endif %}
+    <div class="repeats">
+        <div id="visited-cities-container">
+            <h2>Посещенные города:</h2>
+            <ul id="visited-cities-list"></ul>
+        </div>
+    </div>
+</div>
+
+
+{% if weather_data %}
+    <h1 class="week">Погода на неделю: </h1>
+
+    <div class="table-cnt">
+        <table>
+            <thead>
+            <tr>
+                <th>Дата</th>
+                <th>Погодные условия</th>
+                <th>Температура (днём/ночью)</th>
+                <th>Вероятность осадков (%)</th>
+                <th>Кол-во осадков (мм)</th>
+                <th>Ветер (м/с)</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for x in weather_data.weather_data %}
+                <tr>
+                    <td>{{ x.date }}</td>
+                    <td>{{ x.weather_code }}</td>
+                    <td>{{ x.temperature_max|floatformat:0 }}/{{ x.temperature_min|floatformat:0 }} °C</td>
+                    <td>{{ x.precipitation_probability_mean|floatformat:2 }}</td>
+                    <td>{{ x.precipitation_sum|floatformat:2 }}</td>
+                    <td>{{ x.wind_speed_max|floatformat:2 }} {{ x.wind_direction }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endif %}
+
+
+<script src="{% static 'js/script.js' %}"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+</body>
+</html>
